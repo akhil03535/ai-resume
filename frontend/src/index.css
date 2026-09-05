@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-bg text-ink; }
+  ::selection { @apply bg-primary-100; }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-border rounded-card shadow-card p-5;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium
+           transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-primary-900 text-white hover:bg-primary-700;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-ink border border-border hover:bg-bg;
+  }
+  .btn-ghost {
+    @apply btn text-ink-muted hover:bg-bg hover:text-ink;
+  }
+  .input {
+    @apply w-full rounded-lg border border-border bg-white px-3.5 py-2.5 text-sm text-ink
+           placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent;
+  }
+  .label {
+    @apply block text-sm font-medium text-ink mb-1.5;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .badge-success { @apply badge bg-green-50 text-success border border-green-200; }
+  .badge-warning { @apply badge bg-amber-50 text-warning border border-amber-200; }
+  .badge-danger  { @apply badge bg-red-50 text-danger border border-red-200; }
+  .badge-info    { @apply badge bg-blue-50 text-info border border-blue-200; }
+  .badge-neutral { @apply badge bg-slate-50 text-ink-muted border border-border; }
+}
+
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

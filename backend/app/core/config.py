@@ -7,6 +7,7 @@ should call os.environ directly - import `settings` instead.
 from functools import lru_cache
 from typing import List
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -56,6 +57,12 @@ class Settings(BaseSettings):
     ATS_WEIGHT_SECTION_COMPLETENESS: float = 0.10
     ATS_WEIGHT_FORMATTING: float = 0.05
     ATS_WEIGHT_EDUCATION: float = 0.05
+
+    @model_validator(mode="after")
+    def validate_production_security(self) -> "Settings":
+        if self.ENV.lower() == "production" and self.JWT_SECRET == "change-me-in-production":
+            raise ValueError("JWT_SECRET must be explicitly configured when ENV=production")
+        return self
 
     @property
     def cors_origins_list(self) -> List[str]:

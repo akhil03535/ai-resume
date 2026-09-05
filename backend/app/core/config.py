@@ -40,6 +40,11 @@ class Settings(BaseSettings):
     ALLOWED_UPLOAD_EXTENSIONS: List[str] = [".pdf", ".docx"]
     UPLOAD_DIR: str = "/app/uploads"
 
+    # --- Persistent storage ---
+    SUPABASE_URL: str = ""
+    SUPABASE_SECRET_KEY: str = ""
+    SUPABASE_STORAGE_BUCKET: str = "resumes"
+
     # --- AI provider ---
     AI_PROVIDER: str = "groq"
     GROQ_API_KEY: str = ""

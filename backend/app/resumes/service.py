@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.common.exceptions import FileProcessingError, NotFoundError
 from app.core.redis import cache_get, cache_set
-from app.documents.parser import extract_text, validate_and_save_upload
+from app.core import storage
+from app.documents.parser import extract_text_from_bytes, validate_upload
 from app.resumes.models import Resume, ResumeStatus
 from app.ai.factory import get_ai_provider
 from app.profiles import service as profile_service
@@ -16,7 +17,8 @@ def upload_resume(db: Session, user_id, file: UploadFile) -> Resume:
     if not raw_bytes:
         raise FileProcessingError("The uploaded file is empty.")
 
-    file_path, file_type = validate_and_save_upload(file, raw_bytes)
+    extension, file_type = validate_upload(file, raw_bytes)
+    file_path = storage.store_resume(user_id, extension, raw_bytes)
 
     resume = Resume(
         user_id=user_id,
@@ -25,11 +27,15 @@ def upload_resume(db: Session, user_id, file: UploadFile) -> Resume:
         file_type=file_type,
         status=ResumeStatus.UPLOADED,
     )
-    db.add(resume)
-    db.flush()
+    try:
+        db.add(resume)
+        db.flush()
+    except Exception:
+        storage.delete_resume(file_path)
+        raise
 
     try:
-        text = extract_text(file_path, file_type)
+        text = extract_text_from_bytes(storage.read_resume(file_path), file_type)
         resume.extracted_text = text
     except FileProcessingError as exc:
         resume.status = ResumeStatus.FAILED

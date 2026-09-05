@@ -20,6 +20,24 @@ def test_missing_skill_with_no_overlap_returns_missing():
     assert status == "MISSING"
 
 
+def test_production_matching_uses_lexical_fallback_without_loading_embedder(monkeypatch):
+    monkeypatch.setattr(scoring.settings, "ENV", "production")
+    scoring._get_embedder.cache_clear()
+
+    def fail_heavy_import(name, *args, **kwargs):
+        if name == "sentence_transformers":
+            raise AssertionError("SentenceTransformer must not load in production")
+        return original_import(name, *args, **kwargs)
+
+    original_import = __import__
+    monkeypatch.setattr("builtins.__import__", fail_heavy_import)
+
+    try:
+        assert scoring.semantic_similarity("Python API", "Python API") == 1.0
+    finally:
+        scoring._get_embedder.cache_clear()
+
+
 def test_related_phrase_can_partially_or_fully_match():
     status, score = scoring.classify_requirement_match(
         "REST API development",

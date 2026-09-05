@@ -29,6 +29,8 @@ def normalize(text: str) -> str:
 def _get_embedder():
     """Loaded lazily and cached - the model is ~80MB and we don't want to pay
     that cost on every request, only the first time it's actually needed."""
+    if settings.ENV.lower() == "production":
+        return None
     try:
         from sentence_transformers import SentenceTransformer
         return SentenceTransformer("all-MiniLM-L6-v2")
